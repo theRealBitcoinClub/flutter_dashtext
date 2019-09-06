@@ -120,7 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomSheet: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(twitter_bird),
@@ -135,11 +135,10 @@ class _MyHomePageState extends State<MyHomePage> {
             title: Text('Instagram'),
           ),
         ],
-        currentIndex: _selectedIndex,
         fixedColor: Colors.grey[400],
         selectedFontSize: 12.0,
         onTap: (index) {
-          switch (_selectedIndex) {
+          switch (index) {
             case 0: _launchURL("https://www.facebook.com/Dash-Text-1825509330867292/"); break;
             case 1: _launchURL("https://twitter.com/dash_text"); break;
             case 2: _launchURL("https://www.instagram.com/dashtext/"); break;
