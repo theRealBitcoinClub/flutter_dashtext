@@ -25,17 +25,14 @@ class MyApp extends StatelessWidget {
         accentColor: Colors.cyan[600],
         fontFamily: 'Montserrat',
         textTheme: TextTheme(
+          caption: TextStyle(
+              fontSize: 42.0, fontWeight: FontWeight.w400, color: TEXT_COLOR),
           headline: TextStyle(
               fontSize: 36.0, fontWeight: FontWeight.w400, color: TEXT_COLOR),
           button: TextStyle(
               fontSize: 28.0, fontWeight: FontWeight.w300, color: TEXT_COLOR),
           title: TextStyle(
               fontSize: 24.0, fontWeight: FontWeight.w500, color: TEXT_COLOR),
-          body1: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.w600,
-              fontFamily: 'Hind',
-              color: TEXT_COLOR),
         ),
       ),
       home: MyHomePage(title: 'DashText'),
@@ -52,6 +49,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String _homeState = "HOME";
   void _navigate(String id) {
     updateHomeState(id);
@@ -61,6 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: new AppBar(
         title: Text(
           widget.title,
@@ -181,26 +180,46 @@ class _MyHomePageState extends State<MyHomePage> {
         break;
       case "VES":
         rtv.add(_buildListTileHomeContent(
-            context, "venezuela", 'Venezuela', "", ""));
-        rtv.add(_buildListTileNumber("movilnet", "0424-291-72-09"));
-        rtv.add(_buildListTileNumber("digitel", "99-10"));
-        rtv.add(_buildListTileNumber("movistar", "34-57"));
+            context, "venezuela", 'Venezuela', "HOME", "+58"));
+        rtv.add(buildListTileCaption("¡Elige tú provedor!"));
+        rtv.add(_buildListTileNumber("movilnet", "424-291-72-09", "+58"));
+        rtv.add(_buildListTileNumber("digitel", "99-10", "+58"));
+        rtv.add(_buildListTileNumber("movistar", "34-57", "+58"));
         break;
       case "COP":
-        rtv.add(
-            _buildListTileHomeContent(context, "colombia", 'Colombia', "", ""));
+        rtv.add(_buildListTileHomeContent(
+            context, "colombia", 'Colombia', "HOME", "+57"));
+        rtv.add(buildListTileCaption("¡Toca el número!"));
+        rtv.add(_buildListTileNumber("drawer", "89-99-79", "+57"));
         break;
       case "USD":
-        rtv.add(_buildListTileHomeContent(context, "usa", 'U.S.A.', "", ""));
+        rtv.add(
+            _buildListTileHomeContent(context, "usa", 'U.S.A.', "HOME", "+1"));
+        rtv.add(buildListTileCaption("Touch the number!"));
+        rtv.add(_buildListTileNumber("drawer", "607-307-32-74", "+1"));
         break;
     }
 
     return rtv;
   }
 
-  ListTile _buildListTileNumber(String img, String phoneNumber) {
+  ListTile buildListTileCaption(String msg) {
     return ListTile(
-      contentPadding: EdgeInsets.fromLTRB(16.0, 24.0, 16.0, 24.0),
+      contentPadding: EdgeInsets.fromLTRB(32.0, 0.0, 0.0, 16.0),
+      title: Text(
+        msg,
+        style: Theme.of(context)
+            .textTheme
+            .caption
+            .copyWith(color: Colors.yellow[700]),
+      ),
+    );
+  }
+
+  ListTile _buildListTileNumber(
+      String img, String phoneNumber, String countryCode) {
+    return ListTile(
+      contentPadding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
       leading: Image.asset(
         "images/" + img + ".png",
         width: 100.0,
@@ -214,7 +233,7 @@ class _MyHomePageState extends State<MyHomePage> {
         size: 36.0,
       ),
       onTap: () {
-        _launchURL("sms:" + phoneNumber);
+        _launchURL("sms:" + countryCode + phoneNumber);
       },
     );
   }
@@ -223,6 +242,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (await canLaunch(url)) {
       await launch(url);
     } else {
+      _showSnackBar(context, 'Could not launch $url');
       throw 'Could not launch $url';
     }
   }
@@ -236,4 +256,18 @@ class _MyHomePageState extends State<MyHomePage> {
         txt,
         style: Theme.of(context).textTheme.headline,
       );
+
+  void _showSnackBar(ctx, String msg, {String additionalText = ""}) {
+    _scaffoldKey.currentState.showSnackBar(SnackBar(
+      duration: Duration(milliseconds: 3000),
+      content: Text(
+        /*FlutterI18n.translate(ctx, msgId)*/ msg + additionalText,
+        style: TextStyle(
+            fontSize: 18.0,
+            fontWeight: FontWeight.w400,
+            color: Colors.grey[900]),
+      ),
+      backgroundColor: Colors.yellow[700],
+    ));
+  }
 }
