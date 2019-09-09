@@ -95,11 +95,11 @@ class _MyHomePageState extends State<MyHomePage> {
         onTap: (index) {
           switch (index) {
             case 0:
-              _launchURL(
-                  "https://www.facebook.com/Dash-Text-1825509330867292/");
+              _launchURL("https://twitter.com/dash_text");
               break;
             case 1:
-              _launchURL("https://twitter.com/dash_text");
+              _launchURL(
+                  "https://www.facebook.com/Dash-Text-1825509330867292/");
               break;
             case 2:
               _launchURL("https://www.instagram.com/dashtext/");
@@ -121,9 +121,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: _buildContent(),
+      body: Scrollbar(
+        child: ListView(children: _buildContent()),
       ),
     );
   }
