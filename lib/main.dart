@@ -199,6 +199,7 @@ class _MyHomePageState extends State<MyHomePage> {
         break;
     }
 
+    rtv.add(ListTile(contentPadding: EdgeInsets.all(32.0)));
     return rtv;
   }
 
