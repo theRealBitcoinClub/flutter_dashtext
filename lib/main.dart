@@ -55,8 +55,14 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String _homeState = "HOME";
+  String _launchSmsLink;
+  String _selectedProviderNumber;
+  String _selectedProviderImage;
+  String _lastSelectedHomeState;
+  var _edgeInsetsActionTile = EdgeInsets.fromLTRB(64.0, 16.0, 64.0, 16.0);
+
   void _navigate(String id) {
-    updateHomeState(id);
+    _updateState(id);
     Navigator.pop(context);
   }
 
@@ -134,9 +140,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   ListTile _buildListTileHomeContent(BuildContext context, String img,
-      String text, String id, String countryCode) {
+      String text, String stateId, String countryCode) {
     return ListTile(
-      contentPadding: EdgeInsets.fromLTRB(32.0, 32.0, 32.0, 32.0),
+      contentPadding: EdgeInsets.all(32.0),
       leading: _drawImage(img),
       trailing: Text(
         countryCode,
@@ -144,12 +150,13 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       title: _buildHomeItemText(context, text),
       onTap: () {
-        updateHomeState(id);
+        _lastSelectedHomeState = stateId;
+        _updateState(stateId);
       },
     );
   }
 
-  void updateHomeState(String id) {
+  void _updateState(String id) {
     setState(() {
       _homeState = id;
     });
@@ -174,6 +181,13 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Widget> rtv = [];
 
     switch (_homeState) {
+      case "ACTION":
+        rtv.add(_buildListTileActionHeader());
+        rtv.add(_buildListTileCreate());
+        rtv.add(_buildListTileSend());
+        rtv.add(_buildListTileSaldo());
+        rtv.add(_buildListTileRate());
+        break;
       case "HOME":
         rtv.add(Padding(padding: EdgeInsets.all(30.0)));
         rtv.add(_buildListTileHomeContent(
@@ -226,7 +240,7 @@ class _MyHomePageState extends State<MyHomePage> {
   ListTile _buildListTileNumber(
       String img, String phoneNumber, String countryCode) {
     return ListTile(
-      contentPadding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
+      contentPadding: EdgeInsets.all(16.0),
       leading: Image.asset(
         "images/" + img + ".png",
         width: 100.0,
@@ -237,11 +251,114 @@ class _MyHomePageState extends State<MyHomePage> {
         style: Theme.of(context).textTheme.title,
       ),
       trailing: Icon(
-        Icons.sms,
-        size: 32.0,
+        Icons.arrow_right,
+        size: 48.0,
       ),
       onTap: () {
-        _launchURL("sms:" + countryCode + phoneNumber);
+        _selectedProviderImage = img;
+        _selectedProviderNumber = countryCode + "-" + phoneNumber;
+        _launchSmsLink = "sms:" + countryCode + phoneNumber;
+        _updateState("ACTION");
+      },
+    );
+  }
+
+  ListTile _buildListTileActionHeader() {
+    return ListTile(
+      contentPadding: EdgeInsets.fromLTRB(32.0, 16.0, 32.0, 16.0),
+      leading: Image.asset(
+        "images/" + _selectedProviderImage + ".png",
+        width: 100.0,
+      ),
+      title: AutoSizeText(
+        _selectedProviderNumber,
+        maxLines: 1,
+        style: Theme.of(context).textTheme.display1,
+      ),
+      onTap: () {
+        _updateState(_lastSelectedHomeState);
+      },
+    );
+  }
+
+  ListTile _buildListTileRate() {
+    return ListTile(
+      contentPadding: _edgeInsetsActionTile,
+      leading: Icon(
+        Icons.account_balance,
+        size: 32.0,
+      ),
+      title: AutoSizeText(
+        _lastSelectedHomeState == "USD" ? "CURRENT RATE" : "TASA ACTUAL",
+        maxLines: 1,
+        style: Theme.of(context).textTheme.title,
+      ),
+      onTap: () {
+        _launchURL(_launchSmsLink +
+            "?body=" +
+            (_lastSelectedHomeState == "USD" ? "PRICE" : "TASA"));
+      },
+    );
+  }
+
+  ListTile _buildListTileSaldo() {
+    return ListTile(
+      contentPadding: _edgeInsetsActionTile,
+      leading: Icon(
+        Icons.account_balance_wallet,
+        size: 32.0,
+      ),
+      title: AutoSizeText(
+        (_lastSelectedHomeState == "USD" ? "CHECK BALANCE" : "REVISA SALDO"),
+        maxLines: 1,
+        style: Theme.of(context).textTheme.title,
+      ),
+      onTap: () {
+        _launchURL(_launchSmsLink +
+            "?body=" +
+            (_lastSelectedHomeState == "USD" ? "BALANCE" : "SALDO"));
+      },
+    );
+  }
+
+  ListTile _buildListTileSend() {
+    return ListTile(
+      contentPadding: _edgeInsetsActionTile,
+      leading: Icon(
+        Icons.send,
+        size: 32.0,
+      ),
+      title: AutoSizeText(
+        (_lastSelectedHomeState == "USD" ? "SEND COINS" : "ENVIAR MONEDA"),
+        maxLines: 1,
+        style: Theme.of(context).textTheme.title,
+      ),
+      onTap: () {
+        _launchURL(_launchSmsLink +
+            "?body=" +
+            (_lastSelectedHomeState == "USD"
+                ? "SEND [amount] USD [receiver]"
+                : "ENVIAR [monto] BS 04xxxxxxxxx"));
+      },
+    );
+  }
+
+  ListTile _buildListTileCreate() {
+    return ListTile(
+      contentPadding: _edgeInsetsActionTile,
+      leading: Icon(
+        Icons.account_circle,
+        size: 32.0,
+      ),
+      title: AutoSizeText(
+        (_lastSelectedHomeState == "USD" ? "CREATE ACCOUNT" : "CREAR CUENTA"),
+        maxLines: 1,
+        style: Theme.of(context).textTheme.title,
+      ),
+      onTap: () {
+        _launchURL(_launchSmsLink +
+            "?body=" +
+            (_lastSelectedHomeState == "USD" ? "CREATE" : "CREAR"));
       },
     );
   }
